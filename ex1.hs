@@ -32,8 +32,20 @@ compress (x:(y:xs))
   | x == y = compress (y:xs)
   | otherwise = x : compress (y:xs)
 
-pack :: Eq a => [a] -> [a]
-pack [] = []
-pack [x] = [x]
-pack (x:(y:xs))
-  | x == y = [x, y]
+
+packSub :: Eq a => [a] -> [a] -> [[a]]
+packSub [] [x, y]
+  | x == y = [[x, y]]
+  | otherwise = [[x], [y]]
+packSub acc [x, y]
+  | x == y = [acc ++ [x, y]]
+  | otherwise = [acc ++ [x], [y]]
+packSub [] (x:(y:xs))
+  | x == y = packSub [x] (y:xs)
+  | otherwise = [x] : packSub [] (y:xs)
+packSub acc (x:(y:xs))
+  | x == y = packSub (acc ++ [x]) (y:xs)
+  | otherwise = (acc ++ [x]) : packSub [] (y:xs)
+
+pack :: Eq a => [a] -> [[a]]
+pack = packSub []
